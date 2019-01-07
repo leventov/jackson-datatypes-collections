@@ -55,6 +55,22 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>net.openhft</groupId>
+                <artifactId>jpsg-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <objectIdStyle>LONG</objectIdStyle>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jpsg</id>
+                        <goals>
+                            <goal>jpsg</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
