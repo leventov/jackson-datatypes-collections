@@ -23,10 +23,9 @@ import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSetD
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSortedSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSortedSetDeserializer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;
@@ -156,9 +155,11 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     // are faster to construct.
 
     // initialized below
-    static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS = new HashMap<>();
+    static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS
+            = new IdentityHashMap<>();
     @SuppressWarnings("rawtypes")
-    static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
+    static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES =
+            Collections.newSetFromMap(new IdentityHashMap<>());
 
     @Override
     public JsonDeserializer<?> findCollectionDeserializer(

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import java.io.IOException;
-import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.map.*;
 import org.eclipse.collections.api.map.primitive.*;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.primitive.*;
@@ -23,10 +23,10 @@ interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
     void add(M target, K kh, V vh, DeserializationContext ctx, String k, JsonParser v)
             throws IOException;
 
-    // Boolean-valued map types are generated separately because JPSG doesn't support boolean
-    // specialization
-
     /* with char|byte|short|int|long|float|double|obj key */
+
+    // TypeHandlerPairs for boolean-valued map types are generated separately because JPSG doesn't
+    // support boolean specialization
 
     /* define KeyHandlerType //
     // if obj key //RefKeyHandler// elif !(obj key) //PrimitiveKVHandler.Char// endif //
@@ -65,14 +65,13 @@ interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
                 }
             };
 
-    /* endwith */
+    // Generating TypeHandlerPairs for all other map types
 
-    // All other map types
+    /* with int|short|byte|char|long|float|double|obj value */
 
-    /* with
-        char|byte|short|int|long|float|double|obj key
-        int|short|byte|char|long|float|double|obj value
-    */
+    /* define ValueHandlerType //
+    // if obj value //RefValueHandler// elif !(obj value) //PrimitiveKVHandler.Int// endif //
+    // enddefine */
 
     /* define MapType //
     // if obj key obj value //MutableMap<Object, Object>
@@ -80,14 +79,6 @@ interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
     // elif obj value //MutableCharObjectMap<Object>
     // elif !(obj key) && !(obj value) //MutableCharIntMap
     // endif //
-    // enddefine */
-
-    /* define KeyHandlerType //
-    // if obj key //RefKeyHandler// elif !(obj key) //PrimitiveKVHandler.Char// endif //
-    // enddefine */
-
-    /* define ValueHandlerType //
-    // if obj value //RefValueHandler// elif !(obj value) //PrimitiveKVHandler.Int// endif //
     // enddefine */
 
     TypeHandlerPair</*MapType*/MutableCharIntMap/**/,
@@ -125,5 +116,31 @@ interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
                 }
             };
 
-    /* endwith */
+    /* endwith */ // of key
+
+    /* endwith */ // of value
+
+
+    static void addDeserializers() {
+        EclipseMapDeserializers.add(MutableMap.class, TypeHandlerPair.OBJECT_OBJECT);
+        EclipseMapDeserializers.add(MutableMapIterable.class, TypeHandlerPair.OBJECT_OBJECT);
+        EclipseMapDeserializers.add(MapIterable.class, TypeHandlerPair.OBJECT_OBJECT);
+        EclipseMapDeserializers.add(UnsortedMapIterable.class, TypeHandlerPair.OBJECT_OBJECT);
+        EclipseMapDeserializers.add(ImmutableMap.class, TypeHandlerPair.OBJECT_OBJECT, MutableMap::toImmutable);
+        EclipseMapDeserializers.add(ImmutableMapIterable.class, TypeHandlerPair.OBJECT_OBJECT, MutableMap::toImmutable);
+
+        /* with char|byte|short|int|long|float|double|obj key */
+        EclipseMapDeserializers.add(CharBooleanMap.class, CHAR_BOOLEAN);
+        EclipseMapDeserializers.add(MutableCharBooleanMap.class, CHAR_BOOLEAN);
+        EclipseMapDeserializers.add(ImmutableCharBooleanMap.class, CHAR_BOOLEAN, CharBooleanMap::toImmutable);
+
+        /* with int|short|byte|char|long|float|double|obj value */
+        /* if !(obj key obj value) */
+        EclipseMapDeserializers.add(CharIntMap.class, CHAR_INT);
+        EclipseMapDeserializers.add(MutableCharIntMap.class, CHAR_INT);
+        EclipseMapDeserializers.add(ImmutableCharIntMap.class, CHAR_INT, CharIntMap::toImmutable);
+        /* endif */
+        /* endwith */
+        /* endwith */
+    }
 }
